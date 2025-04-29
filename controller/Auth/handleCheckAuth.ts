@@ -12,9 +12,7 @@ interface AuthenticatedRequest extends Request{
 
 const handlecheckAuth = (req: Request, res: Response, next: NextFunction): void =>{
     const username = req.params.id;
-    console.log('username', username);
     const loggedUser =  (req as AuthenticatedRequest).user?.name as string 
-    console.log('loggedUser', loggedUser );
     try {
      
         if(loggedUser !== username){

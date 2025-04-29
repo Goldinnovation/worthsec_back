@@ -26,7 +26,6 @@ const authMiddlewareCheck = (
         if (err) {
           return res.status(401).json({ message: "Invalid token " });
         } else {
-          console.log('decoded', decoded);
           req.user = decoded;
           next();
         }
