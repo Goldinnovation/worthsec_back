@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") 
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model account {
+  userId          String            @id @default(uuid())
+  userName        String            @unique
+  userEmail       String
+  userPassword1   String
+  createdAt       DateTime          @default(now())
+  picture         picture?
+  userTouser      userTouser[]
+  userJoinEvent   userJoinEvent[]
+  userFavourEvent userFavourEvent[]
+  notification    notification[]
+  event           event[]
+  invitation      invitation[]
+  userInterest    userInterest?
+  role            Role?             @default(USER)
+
+  @@index(fields: [userName])
+}
+
+model userInterest {
+  IntersetId       String   @id @default(uuid())
+  user_id          account  @relation(fields: [user_interest_id], references: [userId])
+  user_interest_id String   @unique
+  interest_list    String[]
+}
+
+model picture {
+  pictureId        String   @id @default(uuid())
+  picture_owner    account  @relation(fields: [picture_owner_id], references: [userId])
+  picture_owner_id String   @unique
+  pictureUrl       String
+  gifUrl           String?
+  createdAt        DateTime @default(now())
+
+  @@index(fields: [picture_owner_id])
+}
+
+model event {
+  eventId                 String            @id @default(uuid())
+  userId_EventHost        account           @relation(fields: [eventHost], references: [userId], onDelete: Cascade)
+  eventHost               String
+  eventHostName           String
+  eventTitle              String
+  eventType               String
+  eventDate               DateTime          @db.Date
+  eventDescriptionContent String
+  eventTime               String
+  ImageCoverUpload        String
+  createdAt               DateTime          @default(now())
+  eventInviteType         Int?
+  eventAddress            String
+  eventZipcode            String
+  cityType                String
+  selectedRangeofEvents   Int?
+  userJoinEvent           userJoinEvent[]
+  userFavourEvent         userFavourEvent[]
+  invitation              invitation[]
+
+  @@index(fields: [eventHost])
+}
+
+model userJoinEvent {
+  joinId       String   @id @default(uuid())
+  joined_user  account  @relation(fields: [user_id], references: [userId])
+  user_id      String
+  joined_event event    @relation(fields: [event_id], references: [eventId], onDelete: Cascade)
+  event_id     String
+  createdAt    DateTime @default(now())
+}
+
+model userFavourEvent {
+  favourId       String   @id @default(uuid())
+  user_favoured  account  @relation(fields: [currentUser_id], references: [userId])
+  currentUser_id String
+  favored_event  event    @relation(fields: [event_id], references: [eventId], onDelete: Cascade)
+  event_id       String
+  createdAt      DateTime @default(now())
+}
+
+model userTouser {
+  userTouserId      String         @id @default(uuid())
+  userRequested     account        @relation(fields: [userRequested_id], references: [userId])
+  userRequested_id  String
+  userFollowed      String
+  connection_status Int
+  createdAt         DateTime       @default(now())
+  notification      notification[]
+
+  @@index(fields: [userRequested_id, userFollowed])
+}
+
+model notification {
+  notificationId           String     @id @default(uuid())
+  account                  account    @relation(fields: [currentUser_notified_Id], references: [userId])
+  currentUser_notified_Id  String
+  userTOuser               userTouser @relation(fields: [userTouser_connection_id], references: [userTouserId])
+  userTouser_connection_id String
+}
+
+model session {
+  id     Int      @id @default(autoincrement())
+  sid    String   @unique
+  sess   String
+  expire DateTime
+}
+
+model invitation {
+  invitationId           String   @id @default(uuid())
+  currentUser_sendInvite account  @relation(fields: [currentUser_invite_Id], references: [userId])
+  currentUser_invite_Id  String
+  InvitedToEvent         event    @relation(fields: [event_invitedTo_Id], references: [eventId], onDelete: Cascade)
+  event_invitedTo_Id     String
+  otherUser_invited_Id   String[]
+}

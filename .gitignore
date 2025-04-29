@@ -1,0 +1,13 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore Yarn Plug'n'Play files
+.pnp/
+.pnp.js
+
+# Ignore environment files
+.env
+.env.test
+
+# Ignore video files
+*.mp4
