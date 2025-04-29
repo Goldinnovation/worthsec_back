@@ -8,13 +8,15 @@ import {
   beforeAll,
 } from "vitest";
 import { vi } from "vitest";
-import { exploreEvents } from "@/server/controller/Event/handleExploreEvents";
+import { exploreEvents } from "../../../controller/Event/handleExploreEvents";
 import { getMockReq, getMockRes } from "vitest-mock-express";
 import { Request, Response } from "express";
 import prisma from "../../../libs/__mocks__/prisma";
-import * as  getUserFriendsInterests from "@/server/controller/Event/handleExploreEvents";
-import * as processUserData  from "@/server/controller/Event/handleExploreEvents";
-import  * as getSpecifiedEventData  from "@/server/controller/Event/handleExploreEvents";
+import * as  getUserFriendsInterests from "../../../controller/Event/handleExploreEvents";
+import * as processUserData  from "../../../controller/Event/handleExploreEvents";
+import  * as getSpecifiedEventData  from "../../../controller/Event/handleExploreEvents";
+
+
 interface AuthenticatedRequest extends Request {
   user?: any;
 }

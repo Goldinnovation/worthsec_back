@@ -4,7 +4,7 @@ import {
   it,
 } from "vitest";
 import { vi } from "vitest";
-import storeInterestData from "@/server/controller/User/handleuserInterestData";
+import storeInterestData from "../../../controller/User/handleuserInterestData";
 import { getMockReq, getMockRes } from "vitest-mock-express";
 import { Request, Response } from "express";
 import prisma from "../../../libs/__mocks__/prisma";

@@ -1,4 +1,3 @@
-import { aw } from 'vitest/dist/chunks/reporters.D7Jzd9GS';
 import prisma from '../../libs/prisma';
 import { Request, Response } from 'express';
 

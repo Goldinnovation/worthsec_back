@@ -60,7 +60,7 @@ const store = new (connectPgSimple(expressSession))({
     server.use(bodyParser.urlencoded({ extended: true }));
     server.use(express.static('public'));
     server.use(cors({
-        origin: 'http://localhost:3000',
+        origin: `${process.env.AllOWED_REQ_API_URL}`,
         optionsSuccessStatus: 200,
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }));
@@ -123,12 +123,14 @@ const store = new (connectPgSimple(expressSession))({
 
 
 
+    const stringPort = process.env.WEB_PORT as string
+    const port: number = parseInt(stringPort, 10) 
+    const host = process.env.WEB_HOST as string
 
-    const port = 5000;
 
 
 
-    server.listen(port, '::',(err?: Error) => {
+    server.listen(port, host,(err?: Error) => {
         if (err) throw err;
         console.log(`Ready on http://localhost:${port}`);
     });

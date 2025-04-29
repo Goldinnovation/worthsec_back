@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "checkJs": false, 
+    "allowJs": true, 
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "incremental": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+
+  },
+  "paths": {
+      "@/*": ["./*"],
+     
+      
+    },
+  
+  "include": [
+    "**/*.ts",
+    "/__tests__/controller/*.ts",
+  ],
+  "exclude": ["node_modules", "dist"]
+}

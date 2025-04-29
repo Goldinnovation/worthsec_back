@@ -4,7 +4,7 @@ import {
     it,
   } from "vitest";
   import { vi } from "vitest";
-  import updatetoNewEventData from "@/server/controller/Event/handleUpdateToNewExploreData"
+  import updatetoNewEventData from "../../../../controller/Event/handleUpdateToNewExploreData";
   import { getMockReq, getMockRes } from "vitest-mock-express";
   import { Request, Response } from "express";
   import prisma from "../../../../libs/__mocks__/prisma";

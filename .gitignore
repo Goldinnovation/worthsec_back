@@ -11,3 +11,9 @@ node_modules/
 
 # Ignore video files
 *.mp4
+
+/dist
+
+fly.toml
+.dockerignore
+husky

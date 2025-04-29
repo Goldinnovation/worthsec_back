@@ -2,7 +2,6 @@
 import prisma from '../../libs/prisma';
 import { Request, Response } from 'express';
 import axios from 'axios';
-import * as cheerio from 'cheerio';
 import { use } from 'passport';
 // import { as } from 'vitest/dist/chunks/reporters.WnPwkmgA';
 

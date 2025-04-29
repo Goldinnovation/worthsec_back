@@ -9,7 +9,7 @@ import {
 } from "vitest";
 import { vi } from "vitest";
 // import { userFavourEvent } from "@/server/controller/Event/handleFavorEvent";
-import { userFavorsEvent } from "@/server/controller/Event/handleFavorEvent";
+import { userFavorsEvent } from "../../../../controller/Event/handleFavorEvent";
 import { getMockReq, getMockRes } from "vitest-mock-express";
 import { Request, Response } from "express";
 import prisma from "../../../../libs/__mocks__/prisma";

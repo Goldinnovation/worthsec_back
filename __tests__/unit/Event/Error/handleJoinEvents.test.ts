@@ -8,7 +8,7 @@ import {
     beforeAll,
   } from "vitest";
   import { vi } from "vitest";
-  import userJoinEvent from "@/server/controller/Event/handleJoinEvents";
+  import userJoinEvent from "../../../../controller/Event/handleJoinEvents";
   import { getMockReq, getMockRes } from "vitest-mock-express";
   import { Request, Response } from "express";
 
