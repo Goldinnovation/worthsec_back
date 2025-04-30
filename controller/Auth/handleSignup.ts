@@ -41,7 +41,6 @@ const checksIfUserExist = async (req: Request<{}, {}, User>, res: Response) => {
             }
         })
 
-        console.log('userEist', userExist);
         createsNewAcc(userExist, req, res)
 
 

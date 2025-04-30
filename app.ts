@@ -1,15 +1,10 @@
 import express from 'express';
 import { Router } from "express"
-const router = Router()
-import { Application } from 'express';
-import { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
-import dev from 'process';
 import passport from 'passport';
 import eventRequest from './router/Event/eventprompt';
 import signupRequest from './router/Auth/userSignup';
 import passportConfig from './config/passport';
-import isAuth from './Middlware/Auth/isAuth';
 import loginReq from './router/Auth/userLogin';
 import LoginToken from './router/Auth/loginToken'
 import connectPgSimple from 'connect-pg-simple';
@@ -48,11 +43,10 @@ const store = new (connectPgSimple(expressSession))({
 });
 
 
-// const devEnv = process.env.NODE_ENV !== 'production';
-// const app = next({ dev: devEnv});
-// const handle = app.getRequestHandler();
+
 
    const server = express();
+   const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev"
 
 
 
@@ -60,14 +54,11 @@ const store = new (connectPgSimple(expressSession))({
     server.use(bodyParser.urlencoded({ extended: true }));
     server.use(express.static('public'));
     server.use(cors({
-        origin: `${process.env.AllOWED_REQ_API_URL}`,
+        origin: allowedUrl,
         optionsSuccessStatus: 200,
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }));
-    // server.options('*', cors({
-    //     origin: 'http://localhost:3000',
-    //     credentials: true,
-    //   }));
+
     server.use(express.json())
     server.disable('view cache');
 
@@ -89,8 +80,7 @@ const store = new (connectPgSimple(expressSession))({
 
     passportConfig(passport);
     initializeApp(config.firebaseConfig);
-    // getStorage(fireapp)
-    // getFirestore(fireapp)
+   
 
     // API endpoints
     server.use('/api/events', eventRequest);
@@ -123,7 +113,7 @@ const store = new (connectPgSimple(expressSession))({
 
 
 
-    const stringPort = process.env.WEB_PORT as string
+    const stringPort = process.env.WEB_PORT as string 
     const port: number = parseInt(stringPort, 10) 
     const host = process.env.WEB_HOST as string
 

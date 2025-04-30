@@ -34,6 +34,9 @@ ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 
+
+ENV FRONT_API_URL="https://orbit-front-web.fly.dev"
+
 # Copy the .env file into the image
 
 # Step 6: Generate the Prisma Client
