@@ -172,3 +172,48 @@ Index strategies are applied to four tables:
 - event: Target column - `eventHost`
 - picture: Target column - `picture_owner_id`
 - userTouser: Target column - `userRequested_id` and `userFollwed` 
+
+
+
+</br>
+</br>
+</br>
+
+
+# Implemented Security Measures for “Worthsec” - Backend
+
+## Authentication & Authorization
+- JWT-based authentication system
+- Password hashing using bcrypt
+- Password hashing salt encryption
+- Email verification requirement
+
+## Password Security
+- Password complexity requirements (8–25 characters)
+- Input field length restrictions
+- Password verification during login
+
+## Database Security
+- Schema-full database design with strict type checking
+- Unique index constraints on critical fields
+- Environment variable–based configuration
+
+## API Security
+- Input validation
+- Email format validation
+- Field length restrictions
+- Role-based access control structure – 50%
+- Protected routes using dependencies (CORS + authentication)
+- Error handling stack implementation
+- Row level security - Database - still in process
+
+## Infrastructure Security
+- Docker containerization
+- Environment variable configuration
+- Separate development and production configurations
+- Continuous deployment with GitHub Actions
+- SSL/TLS support through Fly.io deployment
+
+## Data Protection
+- Proper error handling and logging
+- Secure session management

@@ -46,7 +46,7 @@ const store = new (connectPgSimple(expressSession))({
 
 
    const server = express();
-   const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev"
+   const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev" 
 
 
 
@@ -58,6 +58,8 @@ const store = new (connectPgSimple(expressSession))({
         optionsSuccessStatus: 200,
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }));
+
+    // server.use(cors())
 
     server.use(express.json())
     server.disable('view cache');
