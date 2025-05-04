@@ -32,7 +32,7 @@ import expressSession from "express-session";
 import uploadMobileUserProfilePicture from './router/user/userProfilePictureMobileUpload'
 import uploadUserGifBgMobile from './router/user/userGifBgMobile'
 import userAuthCheck from './router/Auth/userCheck'
-
+import rateLimit from 'express-rate-limit';
 
 
 const store = new (connectPgSimple(expressSession))({
@@ -66,7 +66,7 @@ const store = new (connectPgSimple(expressSession))({
 
     server.use(
         expressSession({
-            secret: 'mysecretTestkey',
+            secret: `${process.env.SESSION_KEY}`,
             store: store,
             resave: false,
             saveUninitialized: true,
@@ -77,6 +77,22 @@ const store = new (connectPgSimple(expressSession))({
         })
     );
 
+    // Rate limiter for authenticated User 
+    const authlimiter = rateLimit({
+        windowMs: 15 * 60 * 1000, 
+        limit: 100,
+        standardHeaders: 'draft-8',
+        legacyHeaders: false
+
+    })
+    // Rate limiter for Unauthenticated User
+    const unAuthlimiter = rateLimit({
+        windowMs: 15 * 60 * 1000, 
+        limit: 10,
+        standardHeaders: 'draft-8',
+        legacyHeaders: false
+
+    })
     server.use(passport.initialize());
     server.use(passport.session());
 
@@ -85,30 +101,30 @@ const store = new (connectPgSimple(expressSession))({
    
 
     // API endpoints
-    server.use('/api/events', eventRequest);
-    server.use('/api/signUpAcc', signupRequest);
-    server.use('/api/login', loginReq);
-    server.use('/api/login-token',LoginToken)
-    server.use('/api/logout', logoutReq);
-    server.use('/api/user', userProfilePicture);
-    server.use('/user/c', userAuthCheck);
-    server.use('/api/search', searchUserReq);
-    server.use('/api/userTouser', userFollowUser);
-    server.use('/api/explore', exploreEvents);
-    server.use('/api/JoinEvent', userJoinEvent);
-    server.use('/api/DisplayJoinedEvent', displayUserJoinEvent);
-    server.use('/api/searchforclosefriends', searchForCloseFriend);
-    server.use('/api/invite', inviteCloseFriends);
-    server.use('/api/notifications', userNotifications);
-    server.use('/api/userInterest', userInterestDatarouter)
-    server.use('/api/eventCategory', userCategoryEventReq)
-    server.use('/api/favorEventMobile', userFavorEventReqMob)
-    server.use('/api/newExploreEventData', newExploreEventData)
-    server.use('/api/uploadUserBackground', uploadUserBackground)
-    server.use('/api/userData', UserDataMobile)
-    server.use('/api/userQRRequest', userQRRequest)
-    server.use('/api/userProfilePictureMobileUpload', uploadMobileUserProfilePicture);
-    server.use('/api/uploadGifBgMobile', uploadUserGifBgMobile);
+    server.use('/api/events', authlimiter, eventRequest);
+    server.use('/api/signUpAcc',unAuthlimiter, signupRequest);
+    server.use('/api/login', unAuthlimiter, loginReq);
+    server.use('/api/login-token',unAuthlimiter,LoginToken)
+    server.use('/api/logout', unAuthlimiter,logoutReq);
+    server.use('/api/user', authlimiter, userProfilePicture);
+    server.use('/user/c', authlimiter, userAuthCheck);
+    server.use('/api/search', authlimiter, searchUserReq);
+    server.use('/api/userTouser', authlimiter,  userFollowUser);
+    server.use('/api/explore', authlimiter, exploreEvents);
+    server.use('/api/JoinEvent', authlimiter, userJoinEvent);
+    server.use('/api/DisplayJoinedEvent', authlimiter, displayUserJoinEvent);
+    server.use('/api/searchforclosefriends', authlimiter, searchForCloseFriend);
+    server.use('/api/invite', authlimiter, inviteCloseFriends);
+    server.use('/api/notifications', authlimiter, userNotifications);
+    server.use('/api/userInterest', authlimiter,  userInterestDatarouter)
+    server.use('/api/eventCategory', authlimiter, userCategoryEventReq)
+    server.use('/api/favorEventMobile',authlimiter, userFavorEventReqMob)
+    server.use('/api/newExploreEventData',authlimiter, newExploreEventData)
+    server.use('/api/uploadUserBackground',authlimiter, uploadUserBackground)
+    server.use('/api/userData', authlimiter, UserDataMobile)
+    server.use('/api/userQRRequest',authlimiter, userQRRequest)
+    server.use('/api/userProfilePictureMobileUpload', authlimiter, uploadMobileUserProfilePicture);
+    server.use('/api/uploadGifBgMobile', authlimiter, uploadUserGifBgMobile);
 
     
 

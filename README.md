@@ -173,6 +173,51 @@ Index strategies are applied to four tables:
 - picture: Target column - `picture_owner_id`
 - userTouser: Target column - `userRequested_id` and `userFollwed` 
 
+</br>
+</br>
+</br>
+
+
+# Threat Model Description: Worthsec – Social Media Platform
+
+
+
+### Overview
+This threat model evaluates potential security risks associated with the social media platform **“Worthsec.”**
+
+
+
+
+
+### Assets
+- User personal data (email, interests, birthday)
+- Account credentials (username/password)
+- Backend database
+- User location
+
+
+
+### Threat Agents
+- Hackers
+- Cybercriminals
+- Nation-state actors
+- Thrill seekers (e.g., script kiddies)
+
+</br>
+</br>
+
+## Threat Scenarios
+### Clickjacking
+The attacker embeds a malicious webpage to trick users into entering their credentials in order to steal their passwords.
+
+### Cross-site Scripting (XSS)
+The attacker injects malicious scripts into the website, allowing them to manipulate site behavior.
+
+### Denial of Service (DoS) Attack
+The attacker floods the server with a large volume of unnecessary requests or data, making the service fail.
+
+### SSL Strip Attack
+The attacker downgrades a secure HTTPS connection to an insecure HTTP one. This allows them to intercept and steal user data due to the lack of encryption.
 
 
 </br>
@@ -182,7 +227,7 @@ Index strategies are applied to four tables:
 
 # Implemented Security Measures for “Worthsec” - Backend
 
-## Authentication & Authorization
+### Authentication & Authorization
 - JWT-based authentication system
 - Password hashing using bcrypt
 - Password hashing salt encryption

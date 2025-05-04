@@ -35,7 +35,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) =>
       if (err) {
         reject(err);
       } else if (!user) {
-        reject(new Error("User not found"));
+        return res.status(401).json({success:false, message: info?.message || "login failed"})
       } else {
         resolve(user);
       }
