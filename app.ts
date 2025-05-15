@@ -62,7 +62,7 @@ const store = new (connectPgSimple(expressSession))({
     // server.use(cors())
 
     server.use(express.json())
-    server.disable('view cache');
+    // server.disable('view cache');
 
     server.use(
         expressSession({
