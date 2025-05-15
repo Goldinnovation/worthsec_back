@@ -94,31 +94,31 @@ const createEvent = async (req: AuthenticatedRequest, res: Response) => {
         if (!userId || userId === "undefined" || userId === " ") {
             res.status(400).json({ message: "Bad Request: userId data is invalid" });
         }
-        if (!eventHostName) {
+        if (!eventHostName || eventHostName === "undefined" || eventHostName === " ") {
             res.status(400).json({ message: "Bad Request: eventHostName data is invalid" });
         }
-        if (!eventTitle) {
+        if (!eventTitle || eventTitle === "undefined" || eventTitle === " ") {
             res.status(400).json({ message: "Bad Request: eventTitle data is invalid" });
         }
-        if (!eventDate) {
+        if (!eventDate  || eventDate === "undefined" || eventDate === " ") {
             res.status(400).json({ message: "Bad Request: eventDate data is invalid" });
         }
-        if (!eventType) {
+        if (!eventType || eventType === "undefined" || eventType === " ") {
             res.status(400).json({ message: "Bad Request: eventType data is invalid" });
         }
-        if (!zipcode) {
+        if (!zipcode || zipcode === "undefined" || zipcode === " ") {
             res.status(400).json({ message: "Bad Request: zipcode data is invalid" });
         }
-        if (!eventAddress) {
+        if (!eventAddress || eventAddress === "undefined" || eventAddress === " ") {
             res.status(400).json({ message: "Bad Request: eventAddress data is invalid" });
         }
-        if (!eventCity) {
+        if (!eventCity || eventCity === "undefined" || eventCity === " ") {
             res.status(400).json({ message: "Bad Request: eventCity data is invalid" });
         }
-        if (!eventDescription) {
+        if (!eventDescription || eventDescription === "undefined" || eventDescription === " ") {
             res.status(400).json({ message: "Bad Request: eventDescription data is invalid" });
         }
-        if (!eventTime) {
+        if (!eventTime || eventTime === "undefined" || eventTime === " ") {
             res.status(400).json({ message: "Bad Request: eventTime data is invalid" });
         }
 

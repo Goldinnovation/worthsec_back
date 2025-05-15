@@ -34,7 +34,7 @@ export async function updatetoNewEventData(req: Request, res: Response): Promise
     const userId = (req as AuthenticatedRequest)?.decodedUserId;
     const eventIds = req.body?.EventDataId;
 
-    if (userId === undefined) {
+    if (!userId || userId === "undefined" || userId === " ") {
       res.status(400).json({ message: 'Invalid Request, userId does not exist' });
       return
     }
