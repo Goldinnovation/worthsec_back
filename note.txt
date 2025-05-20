@@ -1,0 +1,119 @@
+Project programming concepts: 
+
+Mainly based on: 
+
+
+ -> Type-Driven Development
+ -> Modular Programming (Each file handles a specific functionality)
+ -> Customized MVC structure 
+ -> Middleware Pattern
+
+---------------------------------------------------------------------------
+
+Value Space:
+    - string
+    - Int 
+    - bool
+    - object 
+
+-----------------------------------------------------------------------------
+
+Variables and Scoping
+
+Local Scope: 
+    Variable that can only be accessed inside a function 
+     -> handleUserProfilePitcureMbile 
+
+Global Scope:
+    Variable that can only be access through the component 
+    -> handleUserProfilePitcureMbile 
+
+Block Scope:
+    Variable that can only be accessed inside a block
+    -> handleUserProfilePitcureMbile
+    
+-----------------------------------------------------------------------------
+
+Typing systems
+
+
+Static & structured typing  => build in typescript
+structured typing - cares about the shape
+
+    -> tsconfig - enables strict type checking 
+    -> handleuserInterestData 
+    -> ?
+    -> ?
+
+
+Extending types:
+    Extending Express's Request type with custom properties
+    -> handleuserInterestData
+
+Enum Type
+    -> Prisma Shema - Roles -  a set of named constants.
+
+
+Type Annotations
+    -> Function parameters & Return are typed
+    -> handleuserInterestData
+
+
+------------------------------------------------------------------------------
+
+
+Polymorphism
+
+Inheritance-based Polymorphism
+inherits properites from the Error class and adds new features (statuscode, code)
+OOP => Classes and inheritance
+    -> customErrors.ts 
+
+Interface-based Polymorphism
+it allows objects of different types to be treated as objects of a common type.
+    -> hanleUserGifbgMobile
+
+
+
+--------------------------------------------------------------------------------
+
+
+Functional Programming
+
+Pure Function
+    Same input always produces same output
+    -> handleuserInterestData - validateRequest function
+    -> handleDecoding
+
+Impure Function
+    -> uploadImageUrlToDatabase
+    -> getCurrentUserNotification
+
+-------------------------------------------------------------------------------
+
+
+Higher Order funciton (Accept a function returnn a function)
+
+Authentication Function 
+    -> checkAuth
+    Takes a callback function as an argument 
+    Returns a function that's immediately invoked
+
+
+Promise-based Function 
+    -> compromiseGif
+    Takes callback functions (resolve, reject)
+    Returns a Promise
+
+
+Array Mapping Function 
+    -> getCloseFriendsAccData
+    takes a function as an argument.
+
+
+Array Filter Funktion
+    -> processUserFriendsInterests
+
+File Processing Function
+    -> processDirectory
+

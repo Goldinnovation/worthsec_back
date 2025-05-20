@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import prisma from '../../libs/prisma';
-import { Request, Response } from 'express';
-
+import { Request, Response, NextFunction } from 'express';
+import createErrorWithContext from '../../utils/errorWithContext';
 
 
 
@@ -28,57 +28,104 @@ interface  User {
 
 
 
+// const validateSignUpInput =  (req: Request): { isValid: boolean; error?: string } => {
+  
+//     const {userName, userEmail, userPassword1} = req.body;
 
-const checksIfUserExist = async (req: Request<{}, {}, User>, res: Response) => {
+//     // Check if required fields exist
+//     if (!userName || !userEmail || !userPassword1) {
+//         return { 
+//             isValid: false, 
+//             error: "Email and password are required" 
+//         };
+//     }
+
+//     // Validate email format
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(userEmail)) {
+//         return { 
+//             isValid: false, 
+//             error: "Invalid email format" 
+//         };
+//     }
+
+//     // Validate password length
+//     if (userPassword1.length < 8) {
+//         return { 
+//             isValid: false, 
+//             error: "Password must be at least 6 characters long" 
+//         };
+//     }
+
+//     return { isValid: true };
+
+    
+// }
+ 
+const checkUserExists = async (userName: string): Promise<boolean> => {
+    const userExist = await prisma.account.findFirst({
+        where: { userName: userName }
+    });
+
+    console.log('userExist', userExist);
+    return userExist == null ? true : false;
+};
+
+const createNewAccount = async (userData: {userName: string; userEmail: string; userPassword1: string; }): Promise<void> => {
+    
+    const hashpw = await bcrypt.hash(userData.userPassword1, 10);
+    await prisma.account.create({
+        data: {
+            userName: userData.userName,
+            userEmail: userData.userEmail,
+            userPassword1: hashpw
+        }
+    });
+};
+
+   
+
+const handleSignUp = async (req: Request<{}, {}, User>, res: Response, next: NextFunction) => {
     try {
-        const userName = req.body.userName
 
-        const userExist = await prisma.account.findFirst({
-            where:
-            {
+        const {userName, userEmail, userPassword1} = req.body;
+        console.log('userName', userName);
 
-                userName: userName
-            }
-        })
+        // validateLoginInput(req, res, next)
+        // const validation = validateSignUpInput(req);
+        // if (!validation.isValid) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: validation.error
+        //     });
+        // }
+        
+     
 
-        createsNewAcc(userExist, req, res)
-
-
-    } catch (error) {
-        console.log("Server Error on checksIfUserExist handler function, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-}
-
-
-
-const createsNewAcc = async (userExist: any, req: Request, res: Response) => {
-    try {
-        const userName = req.body.userName
-        const userEmail = req.body.userEmail
-        const hashpw = await bcrypt.hash(req.body.userPassword1, 10)
-
-        if (userExist) {
+        const userExist = await checkUserExists(userName)
+        
+        if (userExist === false) {
             res.status(400).json({ message: 'User already Exist' })
             return
         }
 
-        await prisma.account.create({
-            data:
-            {
-                userName: userName,
-                userEmail: userEmail,
-                userPassword1: hashpw
-            }
+        await createNewAccount({ userName, userEmail, userPassword1 });
 
-        })
+        return res.json({ 
+            message: "New user created successfully" 
+        });
 
-        res.json({ message: "new user created" })
 
     } catch (error) {
-        console.log("Server Error on createsNewAcc handler function, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
+        if (error instanceof Error) {
+            next(createErrorWithContext(error, 'checksIfUserExist'));
+        } else {
+            const newError = new Error(String(error));
+            next(createErrorWithContext(newError, 'checksIfUserExist'));
+        }
+
     }
 }
 
-export default checksIfUserExist
+
+export default handleSignUp

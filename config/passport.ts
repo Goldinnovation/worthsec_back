@@ -132,5 +132,5 @@ export default function(passport: PassportStatic){
 // Generate a JWT token when the your successfully logged In 
 
 export function generateToken(user: User) {
-  return jwt.sign({ userId: user.userId, email: user.userEmail, name: user.userName}, SECRET_KEY, { expiresIn: '1h' });
+  return jwt.sign({ userId: user.userId, email: user.userEmail, name: user.userName}, SECRET_KEY, { expiresIn: '5h' });
 }

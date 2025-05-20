@@ -33,6 +33,7 @@ import uploadMobileUserProfilePicture from './router/user/userProfilePictureMobi
 import uploadUserGifBgMobile from './router/user/userGifBgMobile'
 import userAuthCheck from './router/Auth/userCheck'
 import rateLimit from 'express-rate-limit';
+import handleError from './controller/Error/handleError';
 
 
 const store = new (connectPgSimple(expressSession))({
@@ -46,20 +47,20 @@ const store = new (connectPgSimple(expressSession))({
 
 
    const server = express();
-   const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev" 
+//    const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev" 
 
 
 
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
     server.use(express.static('public'));
-    server.use(cors({
-        origin: allowedUrl,
-        optionsSuccessStatus: 200,
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    }));
+    // server.use(cors({
+    //     origin: allowedUrl,
+    //     optionsSuccessStatus: 200,
+    //     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    // }));
 
-    // server.use(cors())
+    server.use(cors())
 
     server.use(express.json())
     // server.disable('view cache');
@@ -126,10 +127,14 @@ const store = new (connectPgSimple(expressSession))({
     server.use('/api/userProfilePictureMobileUpload', authlimiter, uploadMobileUserProfilePicture);
     server.use('/api/uploadGifBgMobile', authlimiter, uploadUserGifBgMobile);
 
-    
+    server.use((req, res, next) => {
+        const error = new Error('Not Found');
+        (error as any).statusCode = 404;
+        next(error);
+    });
 
-
-
+    // Global Error Handler
+    server.use(handleError);
 
     const stringPort = process.env.WEB_PORT as string 
     const port: number = parseInt(stringPort, 10) 

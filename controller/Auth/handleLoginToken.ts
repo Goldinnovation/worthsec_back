@@ -3,8 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import passport from 'passport';
 import { Express } from 'express';
 import { generateToken } from '../../config/passport';
-
-
+import createErrorWithContext from '../../utils/errorWithContext';
 
 interface User {
   userId: string, 
@@ -44,10 +43,66 @@ const authenticate = (req: Request, res: Response, next: NextFunction) =>
 
 
 
+  const validateLoginInput = (req: Request, res: Response, next: NextFunction) => {
+ try {
+  const {loginEmail, loginPassword} = req.body
+
+      // Check if required fields exist
+      // if (!loginEmail || !loginPassword) {
+      //     res.status(400).json({
+      //     success: false,
+      //     message: "Email and password are required"
+      //   });
+      //   return
+      // }
+  
+      // Validate email format
+      // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      // if (!emailRegex.test(loginEmail)) {
+      //     res.status(400).json({
+      //     success: false,
+      //     message: "Invalid email format"
+      //   });
+      //   return
+      // }
+  
+      // Validate password length
+      // if (loginPassword.length < 6) {
+      //     res.status(400).json({
+      //     success: false,
+      //     message: "Password must be at least 6 characters long"
+      //   });
+      //   return
+      // }
+
+      return true
+ } catch (error) {
+  next(error)
+ }
+
+    
+  }
+
+
+const checkUserInterest = async (userId: string) => {
+  const userInterest = await prisma.userInterest.findUnique({
+    where: {
+      user_interest_id: userId
+    },
+  })
+  if(userInterest === null || userInterest === undefined) {
+    return null
+  } else {
+    return userInterest
+  }
+}
 
 const userLoginWithToken = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
+
+    // Validate login input
+    validateLoginInput(req, res, next)
     const user = await authenticate(req, res, next);
     const token = generateToken(user as any);
 
@@ -64,15 +119,10 @@ const userLoginWithToken = async (req: Request, res: Response, next: NextFunctio
 
     const userId = user?.userId
     const userName = user?.userName
-    const userInterest = await prisma.userInterest.findUnique({
-      where: {
-        user_interest_id: userId
-      },
+    const userInterestMessage = await checkUserInterest(userId)
 
-    })
 
-    if (userInterest === null) {
-
+    if (userInterestMessage === null || userInterestMessage === undefined) {
 
       res.status(200).json({ token, message: "Interest section is empty",  message2: "Login Successful", userNameData:userName})
 
@@ -83,8 +133,12 @@ const userLoginWithToken = async (req: Request, res: Response, next: NextFunctio
 
 
   } catch (error) {
-    console.log("Server Error on userLoginWithToken handler function, CatchBlock - True:", error)
-    res.status(500).json({ message: "Internal Server Error" });
+    if (error instanceof Error) {
+      next(createErrorWithContext(error, 'userLoginWithToken'));
+    } else {
+      const newError = new Error(String(error));
+      next(createErrorWithContext(newError, 'userLoginWithToken'));
+    }
   }
 }
 
