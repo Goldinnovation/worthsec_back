@@ -1,6 +1,8 @@
 import prisma from '../../libs/prisma';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from "jsonwebtoken";
+import createErrorWithContext from '../../utils/errorWithContext';
+import CustomError from '../../errors/customError';
 
 /**
  * Purpose Statement--userFavourEvent
@@ -30,43 +32,132 @@ interface AuthenticatedRequest extends Request {
 }
 
 
+interface UserfavoredData {
+    userId: string;
+    eventId: string;
+}
+
+enum ErrorCodes {
+    INVALID_USER_ID = 'INVALID_USER_ID',
+    INVALID_INTERESTS = 'INVALID_INTERESTS',
+    DUPLICATE_ENTRY = 'DUPLICATE_ENTRY',
+    INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+    VALIDATION_ERROR = 'VALIDATION_ERROR',
+    MISSING_DATA = 'MISSING_DATA',
+    FAVORED_EVENT_ID_MISSING = 'FAVORED_EVENT_ID_MISSING'
+}
 
 
 
 
 
+// Validate Request
+const validateRequest = (userId: string | undefined, favoredEventId: any): UserfavoredData => {
+    
+
+    if (!userId || typeof userId !== 'string' || userId === " " || userId === undefined) {
+        throw new CustomError(
+            'Invalid Request: userId is required and must be a string',
+            400,
+            ErrorCodes.INVALID_USER_ID,
+            'validateRequest'
+        );
+    }
+
+    if (!favoredEventId || typeof favoredEventId !== 'string' || favoredEventId === " " || favoredEventId === undefined) {
+        throw new CustomError(
+            'Invalid Request: userId is required and must be a string',
+            400,
+            ErrorCodes.FAVORED_EVENT_ID_MISSING,
+            'validateRequest'
+        );
+    }
+   
+
+    return {
+        userId: userId.replace(/[<>]/g, '').trim(),
+        eventId: favoredEventId.replace(/[<>]/g, '').trim()
+    };
+}
 
 
-export async function userFavorsEvent(req: Request, res: Response): Promise<void> {
-    try {
-        const userId = (req as AuthenticatedRequest)?.decodedUserId;
-        const eventId = req.body?.favoreventId;
+// Validate User ID
+const validateUserId = (userId: string | undefined, res: Response) => {
+    if (userId === undefined || userId === " " || userId === null || userId === "" || typeof userId !== 'string') {
+        res.status(400).json({ message: 'Invalid Request, userId does not exist' });
+        return
+    }
+    return {
+        userId: userId.replace(/[<>]/g, '').trim()}
+}
 
 
-        if (userId === undefined) {
-            res.status(400).json({ message: 'Invalid Request, userId does not exist' });
-            return
-        }
+// Validate Favored Events Data
+const validateFavoredEventsData = (favoredEventsData: any) => {
+    if (favoredEventsData.length === 0 || favoredEventsData === null || favoredEventsData === undefined) {
+        throw new CustomError(
+            'Invalid Request: getFavoredEventId date is missing',
+            400,
+            ErrorCodes.FAVORED_EVENT_ID_MISSING,
+            'validateFavoredEventsData'
+        );
+    }
+}
 
-        if (eventId === " " || eventId === undefined) {
-            res.status(400).json({ message: 'Invalid Request: event Id does not match the requirements' });
-            return
-        }
 
-        await prisma.userFavourEvent.create({
-            data:
-            {
+
+
+
+// ------------------------------------------------------------
+
+// Upload Favor Event - side function
+const uploadFavorEvent = async (userId: string, eventId: string) => {
+   
+        const uploadFavorEventData = await prisma.userFavourEvent.create({
+            data: {
                 currentUser_id: userId,
                 event_id: eventId
             }
         })
+        return uploadFavorEventData
+   
+}
+
+
+
+// ------------------------------------------------------------
+
+// Handle Favor Event main function
+export async function userFavorsEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const userId = (req as AuthenticatedRequest)?.decodedUserId;
+        const eventId = req.body?.favoreventId;
+
+        // Validate Request
+        const validatedData = validateRequest(userId, eventId)
+
+        const cleanedUserId = validatedData.userId;
+        const cleanedEventId = validatedData.eventId;
+
+        // Upload Cleaned Data to Database
+        await uploadFavorEvent(cleanedUserId, cleanedEventId)
+
 
         res.status(200).json({ message: "User successfully favored an event" })
 
 
     } catch (error) {
-        console.log("Server Error on userFavorEventMobile handler function, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({
+               success: false,
+               message: error.message,
+               code: error.code,
+               functionName: error.functionName
+             
+           });
+           return
+       }
+       next(error);
 
     }
 
@@ -78,63 +169,12 @@ export async function userFavorsEvent(req: Request, res: Response): Promise<void
 
 
 
-
-
-
-
-
-
-export async function getUserFavoredEvents(req: Request, res: Response): Promise<void> {
-    try {
-        const userId = (req as AuthenticatedRequest)?.decodedUserId;
-
-
-        if (userId === undefined || userId === " ") {
-            res.status(400).json({ message: 'Invalid Request, userId does not exist' });
-            return
-        }
-
-
-
-
-        const favoredEvent = await prisma.userFavourEvent.findMany({
-            where: {
-                currentUser_id: userId
-            },
-        })
-
-        getEventDetails(favoredEvent, res)
-
-
-
-
-
-
-    } catch (error) {
-        console.log("Server Error on getUserFavoredEvents handler function, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-export const getEventDetails = async (getFavoredEventId: any, res: Response) => {
+// Get Event Details - main function
+export const getEventDetails = async (getFavoredEventId: any, res: Response, next: NextFunction) => {
 
     try {
-        if (getFavoredEventId.length === 0) {
-            res.status(400).json({ message: 'Invalid Request, getFavoredEventId date is missing' });
-            return
-        }
+       
+        validateFavoredEventsData(getFavoredEventId)
 
         const favoredEventsArr: any[] = []
 
@@ -155,11 +195,68 @@ export const getEventDetails = async (getFavoredEventId: any, res: Response) => 
         res.status(200).json(favoredEventsArr)
 
     } catch (error) {
-        console.log("Server Error on findsEventsUserFavored handler function, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({
+               success: false,
+               message: error.message,
+               code: error.code,
+             
+           });
+           return
+       }
+       next(error);
+
     }
 
 }
+
+
+
+
+// Get User Favored Events - main function
+export async function getUserFavoredEvents(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const userId = (req as AuthenticatedRequest)?.decodedUserId;
+
+       const validatedUserId = validateUserId(userId, res)
+
+       const cleanedUserId = validatedUserId?.userId
+
+
+
+        const favoredEvent = await prisma.userFavourEvent.findMany({
+            where: {
+                currentUser_id: cleanedUserId
+            },
+        })
+
+        getEventDetails(favoredEvent, res, next)
+
+    } catch (error) {
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({
+               success: false,
+               message: error.message,
+               code: error.code,
+               functionName: error.functionName
+           });
+           return
+       }
+       next(error);
+       
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,5 @@
 import { Response, Request, NextFunction } from "express"
+import CustomError from "../../errors/customError";
 
 
 interface AuthenticatedRequest extends Request{
@@ -21,8 +22,16 @@ const handlecheckAuth = (req: Request, res: Response, next: NextFunction): void 
         }
         res.status(200).json({message: "User Authenticated"})
     } catch (error) {
-        console.log("Server Error on logout handler function HandlecheckAuth, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
+       if (error instanceof CustomError) {
+        res.status(error.statusCode).json({
+            success: false,
+            message: error.message,
+            code: error.code,
+            functionName: error.functionName,
+       });
+       return
+       }
+       next(error)
     }
 }
 

@@ -5,7 +5,7 @@ Mainly based on:
 
  -> Type-Driven Development
  -> Modular Programming (Each file handles a specific functionality)
- -> Customized MVC structure 
+ ->  feature-based - Customized MVC structure 
  -> Middleware Pattern
 
 ---------------------------------------------------------------------------

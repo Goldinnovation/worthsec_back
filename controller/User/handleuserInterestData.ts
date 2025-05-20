@@ -37,7 +37,8 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
         throw new CustomError(
             'Invalid Request: userId is required and must be a string',
             400,
-            ErrorCodes.INVALID_USER_ID
+            ErrorCodes.INVALID_USER_ID,
+            'validateRequest'
         );
     }
 
@@ -46,7 +47,8 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
         throw new CustomError(
             'Invalid Request: selectedInterests is required',
             400,
-            ErrorCodes.MISSING_DATA
+            ErrorCodes.MISSING_DATA,
+            'validateRequest'
         );
     }
 
@@ -55,7 +57,8 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
         throw new CustomError(
             'Invalid Request: selectedInterests must be a non-empty array',
             400,
-            ErrorCodes.INVALID_INTERESTS
+            ErrorCodes.INVALID_INTERESTS,
+            'validateRequest'
         );
     }
 
@@ -64,7 +67,8 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
         throw new CustomError(
             'Invalid Request: all interests must be strings',
             400,
-            ErrorCodes.INVALID_INTERESTS
+            ErrorCodes.INVALID_INTERESTS,
+            'validateRequest'
         );
     }
 
@@ -74,24 +78,22 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
     };
 }
 
+// ------------------------------------------------------------
 
-
-// Creates the user interest object
+// Creates the user interest object - side function
 const createUserInterest = async (userData: UserInterestData, next: NextFunction) => {
-    try {
-        const result = await prisma.userInterest.create({
+    
+    const result = await prisma.userInterest.create({
             data: {
                 user_interest_id: userData.userId,
                 interest_list: userData.interests
             }
-        });
-        return result;
-    } catch (error) {
-        next(error);
-    }
+    });
+    return result;
+   
 }
 
-// Returns the success response
+// Returns the success response - side function
 const successResponse = (data: any) => {
     return {
         success: true,
@@ -103,8 +105,8 @@ const successResponse = (data: any) => {
     };
 }
 
-
-// Stores the user interest data
+// ------------------------------------------------------------
+// Stores the user interest data - main function
 const storeInterestData = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as AuthenticatedRequest)?.decodedUserId
@@ -121,7 +123,17 @@ const storeInterestData = async (req: Request, res: Response, next: NextFunction
     }
     catch (error) {
        
-        next(error);
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({
+               success: false,
+               message: error.message,
+               code: error.code,
+               functionName: error.functionName,
+
+           });
+           return
+       }
+       next(error)
     }
 }
 

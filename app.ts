@@ -34,7 +34,8 @@ import uploadUserGifBgMobile from './router/user/userGifBgMobile'
 import userAuthCheck from './router/Auth/userCheck'
 import rateLimit from 'express-rate-limit';
 import handleError from './controller/Error/handleError';
-
+import helmet from 'helmet';
+import validateSSL from './Middlware/Auth/validateSSL';
 
 const store = new (connectPgSimple(expressSession))({
     conObject: {
@@ -50,10 +51,21 @@ const store = new (connectPgSimple(expressSession))({
 //    const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev" 
 
 
-
+    server.use(helmet());
+    server.use(validateSSL);
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
     server.use(express.static('public'));
+    server.use(express.json({ limit: '10kb' })); 
+   
+   
+
+    // server.use((req, res, next) => {
+    //     res.cookie('XSRF-TOKEN', req.csrfToken());
+    //     next();
+    // });
+
+
     // server.use(cors({
     //     origin: allowedUrl,
     //     optionsSuccessStatus: 200,
@@ -65,18 +77,18 @@ const store = new (connectPgSimple(expressSession))({
     server.use(express.json())
     // server.disable('view cache');
 
-    server.use(
-        expressSession({
-            secret: `${process.env.SESSION_KEY}`,
-            store: store,
-            resave: false,
-            saveUninitialized: true,
-            cookie: {
-                maxAge: 1000 * 60 * 60 * 24,
+    // server.use(
+    //     expressSession({
+    //         secret: `${process.env.SESSION_KEY}`,
+    //         store: store,
+    //         resave: false,
+    //         saveUninitialized: true,
+    //         cookie: {
+    //             maxAge: 1000 * 60 * 60 * 24,
                 
-            },
-        })
-    );
+    //         },
+    //     })
+    // );
 
     // Rate limiter for authenticated User 
     const authlimiter = rateLimit({
@@ -104,7 +116,7 @@ const store = new (connectPgSimple(expressSession))({
     // API endpoints
     server.use('/api/events', authlimiter, eventRequest);
     server.use('/api/signUpAcc',unAuthlimiter, signupRequest);
-    server.use('/api/login', unAuthlimiter, loginReq);
+    // server.use('/api/login', unAuthlimiter, loginReq);
     server.use('/api/login-token',unAuthlimiter,LoginToken)
     server.use('/api/logout', unAuthlimiter,logoutReq);
     server.use('/api/user', authlimiter, userProfilePicture);

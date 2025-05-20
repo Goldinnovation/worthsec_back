@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import prisma from '../../libs/prisma';
 import { Request, Response, NextFunction } from 'express';
 import createErrorWithContext from '../../utils/errorWithContext';
+import CustomError from '../../errors/customError';
 
 
 
@@ -17,8 +18,7 @@ import createErrorWithContext from '../../utils/errorWithContext';
  * 
 */
 
-
-interface  User {
+interface  userSignUpData {
     
     userName: string
     userEmail: string
@@ -27,50 +27,113 @@ interface  User {
 
 
 
+enum ErrorCodes {
+    INVALID_USER_NAME = 'INVALID_USER_NAME',
+    INVALID_EMAIL = 'INVALID_EMAIL',
+    INVALID_EMAIL_FORMAT = 'INVALID_EMAIL_FORMAT',
+    INVALID_PASSWORD = 'INVALID_PASSWORD',
+    PASSWORD_TOO_SHORT = 'PASSWORD_TOO_SHORT',
+    PASSWORD_TOO_WEAK = 'PASSWORD_TOO_WEAK' 
+   
+}
 
-// const validateSignUpInput =  (req: Request): { isValid: boolean; error?: string } => {
+// Validate password strength
+const validatePasswordStrength = (password: string): boolean => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+};
+
+// Validate sign up input data
+const validateSignUpInput = (req: Request, res: Response, next: NextFunction): userSignUpData => {
   
-//     const {userName, userEmail, userPassword1} = req.body;
+    const {userName, userEmail, userPassword1} = req.body;
 
-//     // Check if required fields exist
-//     if (!userName || !userEmail || !userPassword1) {
-//         return { 
-//             isValid: false, 
-//             error: "Email and password are required" 
-//         };
-//     }
-
-//     // Validate email format
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     if (!emailRegex.test(userEmail)) {
-//         return { 
-//             isValid: false, 
-//             error: "Invalid email format" 
-//         };
-//     }
-
-//     // Validate password length
-//     if (userPassword1.length < 8) {
-//         return { 
-//             isValid: false, 
-//             error: "Password must be at least 6 characters long" 
-//         };
-//     }
-
-//     return { isValid: true };
+    if (!userName || typeof userName !== 'string' || userName === " " || userName === undefined) {
+        throw new CustomError(
+            'Username is required and must be a valid string',
+            400,
+            ErrorCodes.INVALID_USER_NAME,
+            'validateSignUpInput'
+        );
+    }
 
     
-// }
+    if (!userEmail || typeof userEmail !== 'string' || userEmail === " " || userEmail === undefined) {
+        throw new CustomError(
+            'Email address is required',
+            400,
+                ErrorCodes.INVALID_EMAIL,
+                'validateSignUpInput'
+        );
+    }
+
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userEmail)) {
+        throw new CustomError(
+            'Please enter a valid email address',
+            400,
+            ErrorCodes.INVALID_EMAIL_FORMAT,
+            'validateSignUpInput'
+        );
+    }
+
+
+    if (!userPassword1 || typeof userPassword1 !== 'string' || userPassword1 === " " || userPassword1 === undefined) {
+        throw new CustomError(
+            'Password is required',
+            400,
+            ErrorCodes.INVALID_PASSWORD,
+            'validateSignUpInput'
+        );
+    }
+
+
+    if (userPassword1.length < 8) {
+        throw new CustomError(
+            'Password must be at least 8 characters long',
+            400,
+            ErrorCodes.PASSWORD_TOO_SHORT,
+            'validateSignUpInput'
+        );
+    }
+
+    
+      if (!validatePasswordStrength(userPassword1)) {
+        throw new CustomError(
+            'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+            400,
+            ErrorCodes.PASSWORD_TOO_WEAK,
+            'validateSignUpInput'
+        );
+    }
+
+
+
  
+
+    return { userName: userName.replace(/[<>]/g, '').trim(), userEmail: userEmail.replace(/[<>]/g, '').trim(), userPassword1: userPassword1.replace(/[<>]/g, '').trim() }
+      
+
+    
+}
+ 
+// ------------------------------------------------------------
+// Check if user already exists - side function
 const checkUserExists = async (userName: string): Promise<boolean> => {
     const userExist = await prisma.account.findFirst({
         where: { userName: userName }
     });
 
-    console.log('userExist', userExist);
-    return userExist == null ? true : false;
+    return userExist !== null
 };
 
+
+// Create a new account - side function
 const createNewAccount = async (userData: {userName: string; userEmail: string; userPassword1: string; }): Promise<void> => {
     
     const hashpw = await bcrypt.hash(userData.userPassword1, 10);
@@ -83,46 +146,45 @@ const createNewAccount = async (userData: {userName: string; userEmail: string; 
     });
 };
 
+// ------------------------------------------------------------
    
-
-const handleSignUp = async (req: Request<{}, {}, User>, res: Response, next: NextFunction) => {
+// Handle sign up - main function
+const handleSignUp = async (req: Request<{}, {}, userSignUpData>, res: Response, next: NextFunction) => {
     try {
 
-        const {userName, userEmail, userPassword1} = req.body;
-        console.log('userName', userName);
+        const validation = validateSignUpInput(req, res, next);
 
-        // validateLoginInput(req, res, next)
-        // const validation = validateSignUpInput(req);
-        // if (!validation.isValid) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: validation.error
-        //     });
-        // }
+        const cleanedUserName = validation.userName;
+        const cleanedUserEmail = validation.userEmail;
+        const cleanedUserPassword1 = validation.userPassword1;
+        
         
      
 
-        const userExist = await checkUserExists(userName)
+        const userExist = await checkUserExists(cleanedUserName)
         
         if (userExist === false) {
-            res.status(400).json({ message: 'User already Exist' })
+            res.status(400).json({ message: 'User already registered' })
             return
         }
 
-        await createNewAccount({ userName, userEmail, userPassword1 });
+        await createNewAccount({ userName: cleanedUserName, userEmail: cleanedUserEmail, userPassword1: cleanedUserPassword1 });
 
-        return res.json({ 
-            message: "New user created successfully" 
-        });
+        res.json({ message: "New user created successfully"});
 
 
     } catch (error) {
-        if (error instanceof Error) {
-            next(createErrorWithContext(error, 'checksIfUserExist'));
-        } else {
-            const newError = new Error(String(error));
-            next(createErrorWithContext(newError, 'checksIfUserExist'));
+        if (error instanceof CustomError) {
+             res.status(error.statusCode).json({
+                success: false,
+                message: error.message,
+                code: error.code,
+                functionName: error.functionName,
+
+            });
+            return
         }
+        next(error);
 
     }
 }

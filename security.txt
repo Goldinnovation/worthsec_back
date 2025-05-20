@@ -1,0 +1,56 @@
+
+
+Input Validation 
+=> User login
+
+Password hashing using bcrypt
+=> User sign up
+
+Email format validation
+    => User Login & Sign up 
+
+Basic XSS protection
+    => handleuserInterestData
+
+
+User existence check before creation
+    => hanldeFavorEvent 
+
+Error Handeling - ?
+    => app.js - global errro handler function
+
+
+rate limiting => Auhtorized User and Unautorized User
+
+Request Size Limiting:
+    => app.js
+
+
+ 
+Request rate Limiting:
+    => app.js
+
+
+server.use(helmet()); - Help secure Express apps by setting HTTP response headers
+
+    // Prevents browsers from detecting the MIME type
+    'X-Content-Type-Options': 'nosniff',
+    
+    // Prevents clickjacking attacks
+    'X-Frame-Options': 'SAMEORIGIN',
+    
+    // Enables XSS filter in browsers
+    'X-XSS-Protection': '1; mode=block',
+    
+    // Controls which domains can load your site's resources
+    'Content-Security-Policy': "default-src 'self'",
+    
+    // Prevents MIME type sniffing
+    'X-Download-Options': 'noopen',
+    
+    // Disables browser features
+    'X-Permitted-Cross-Domain-Policies': 'none'
+
+    => app.js   
+
+
