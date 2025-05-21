@@ -9,9 +9,10 @@ import { initializeApp } from 'firebase/app'
 import config from '../../config/firebase'
 import sharp from 'sharp'
 
+
 interface AuthenticatedRequest extends Request{
     user?: any;
-    decodedUserId: any
+    decodedUserId: string
     file?: Express.Multer.File;
   }
   

@@ -52,6 +52,7 @@ export async function uploadProfilePicture(req: Request, res: Response): Promise
 }
 
 
+
 export const addImagetoCloud = async(buffer: any, fileName:string, mimetype: string, userId:string, res: Response) => {
 
   try{

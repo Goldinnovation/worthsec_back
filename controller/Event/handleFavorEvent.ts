@@ -27,7 +27,7 @@ import CustomError from '../../errors/customError';
 
 interface AuthenticatedRequest extends Request {
     user?: any
-    decodedUserId: any
+    decodedUserId: string
 
 }
 

@@ -2,19 +2,18 @@ Project programming concepts:
 
 Mainly based on: 
 
-
+ -> Modular Programming Paradigm(Each file handles a specific functionality)
+ -> feature-based Archirtecure- Customized MVC structure 
  -> Type-Driven Development
- -> Modular Programming (Each file handles a specific functionality)
- ->  feature-based - Customized MVC structure 
  -> Middleware Pattern
 
 ---------------------------------------------------------------------------
 
 Value Space:
-    - string
-    - Int 
-    - bool
-    - object 
+    - string - text data 
+    - Int - whole number
+    - bool - boolean - true and false 
+    - object - collection of related data  
 
 -----------------------------------------------------------------------------
 
@@ -22,16 +21,16 @@ Variables and Scoping
 
 Local Scope: 
     Variable that can only be accessed inside a function 
-     -> handleUserProfilePitcureMbile 
+     -> handleUserProfilePitcureMbile - line 28-31
 
 Global Scope:
     Variable that can only be access through the component 
-    -> handleUserProfilePitcureMbile 
+    -> handleUserProfilePitcureMbile - line 21 
+    
 
 Block Scope:
     Variable that can only be accessed inside a block
-    -> handleUserProfilePitcureMbile
-    
+    -> handleUserProfilePitcureMbile - try-catch block
 -----------------------------------------------------------------------------
 
 Typing systems
@@ -41,22 +40,19 @@ Static & structured typing  => build in typescript
 structured typing - cares about the shape
 
     -> tsconfig - enables strict type checking 
-    -> handleuserInterestData 
-    -> ?
-    -> ?
 
-
-Extending types:
+Custom Type Extensions:
     Extending Express's Request type with custom properties
-    -> handleuserInterestData
+    -> handleuserInterestData - line 10 
 
-Enum Type
-    -> Prisma Shema - Roles -  a set of named constants.
+Enum Type for Error Codes
+    -> Prisma Shema - Roles
+    -> Error Codes: handleSignUp - line 30
 
 
-Type Annotations
-    -> Function parameters & Return are typed
-    -> handleuserInterestData
+Type Annotations- explicit declarations of the data type of a variable, function parameter, or return value in TypeScript
+    -> handleFavorEvent - line 35
+    -> prisma.shema 
 
 
 ------------------------------------------------------------------------------
@@ -65,13 +61,12 @@ Type Annotations
 Polymorphism
 
 Inheritance-based Polymorphism
-inherits properites from the Error class and adds new features (statuscode, code)
-OOP => Classes and inheritance
+inherits properites from the Error class and adds new features (statuscode, funcionName)
     -> customErrors.ts 
 
 Interface-based Polymorphism
 it allows objects of different types to be treated as objects of a common type.
-    -> hanleUserGifbgMobile
+    -> hanleUserGifbgMobile -  extend the Express Request type, allowing different types of requests to be treated uniformly
 
 
 
@@ -80,14 +75,16 @@ it allows objects of different types to be treated as objects of a common type.
 
 Functional Programming
 
-Pure Function
-    Same input always produces same output
+Pure Function - Same input always produces same output - without side effect
     -> handleuserInterestData - validateRequest function
-    -> handleDecoding
+    -> decodingbtoa - line 21- handleDecoding
 
-Impure Function
-    -> uploadImageUrlToDatabase
-    -> getCurrentUserNotification
+Impure Function - function - side effects or depend on external state. 
+    -> handleProfilePictureMobileUpload - line 96
+    -> getCurrentUserNotification - line 26
+
+Anonaymous Function - anonymous functions (functions without names): 
+    -> In handleuserInterestData.ts - line 66
 
 -------------------------------------------------------------------------------
 
@@ -95,7 +92,7 @@ Impure Function
 Higher Order funciton (Accept a function returnn a function)
 
 Authentication Function 
-    -> checkAuth
+    -> checksAuth - line 10 
     Takes a callback function as an argument 
     Returns a function that's immediately invoked
 
@@ -107,13 +104,15 @@ Promise-based Function
 
 
 Array Mapping Function 
-    -> getCloseFriendsAccData
+    -> getCloseFriendsAccData - line 45
     takes a function as an argument.
 
 
-Array Filter Funktion
-    -> processUserFriendsInterests
+Array Filter Function
+    -> processUserFriendsInterests -line 131
 
 File Processing Function
-    -> processDirectory
+    -> processDirectory - callback function 
 
+Recursive Function
+    -> processDirectory calls itself when it finds a subdirectory
