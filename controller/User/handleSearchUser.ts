@@ -1,5 +1,6 @@
 import prisma from '../../libs/prisma';
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import CustomError from '../../errors/customError';
 
 /**
  * Purpose Statement--searchUserbyUser
@@ -17,17 +18,51 @@ import { Request, Response } from "express";
 
 
 
-export async function searchUserbyUser(req: Request, res: Response): Promise<void> {
+interface AuthenticatedRequest extends Request {
+  user?: any
+  searchUserName: string
+}
+
+enum ErrorCodes {
+  INVALID_REQUEST = 'INVALID_REQUEST',
+  MISSING_DATA = 'MISSING_DATA',
+  INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+}
+
+
+
+
+const validateRequest = (searchUserName: string, res: Response) => {
+
+  if (!searchUserName || typeof searchUserName !== 'string' || searchUserName == " " || searchUserName == "") {
+    throw new CustomError(
+      'Invalid Request: userId is required and must be a string',
+      400,
+      ErrorCodes.INVALID_REQUEST,
+      'validateRequest'
+  );
+  }
+
+  return {
+    searchUserName: searchUserName.replace(/[<>]/g, '').trim()
+  }
+
+}
+
+
+
+export async function searchUserbyUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const searchUserName = req.body.searchValue;
+    
+    // Validate the request data
+    const validatedRequestData = validateRequest(searchUserName, res);
+    const cleanedSearchUserName = validatedRequestData.searchUserName;
 
-    if (!searchUserName) {
-      res.status(400).json({ message: 'Invalid Request: searchUserName is invalid' });
-    }
-
+    // Search for the user in the database
     const searchUser = await prisma.account.findMany({
       where: {
-        userName: searchUserName,
+        userName: cleanedSearchUserName,
       },
       include: {
         picture: true,
@@ -37,8 +72,18 @@ export async function searchUserbyUser(req: Request, res: Response): Promise<voi
 
     res.status(200).json(searchUser);
   } catch (error) {
-    console.log("Server Error on searchUserbyUser handler function, CatchBlock - True:", error)
-    res.status(500).json({ message: "Internal Server Error" });
+    if (error instanceof CustomError) {
+        res.status(error.statusCode).json({
+           success: false,
+           message: error.message,
+           code: error.code,
+           functionName: "searchUserbyUser",
+
+       });
+       return
+   }
+    
+    next(error);
   }
 };
 

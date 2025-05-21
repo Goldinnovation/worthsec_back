@@ -1,6 +1,6 @@
 import prisma from '../../libs/prisma';
-import { Response, Request } from "express";
-
+import { Response, Request, NextFunction } from "express";
+import CustomError from '../../errors/customError';
 
 
 
@@ -26,29 +26,60 @@ interface AuthenticatedRequest extends Request{
 }
 
 
-async function userJoinEvent(req: AuthenticatedRequest, res: Response): Promise<void> {
+
+enum ErrorCodes {
+    INVALID_USER_ID = 'INVALID_USER_ID',
+    INVALID_EVENT_ID = 'INVALID_EVENT_ID',
+    MISSING_DATA = 'MISSING_DATA',
+    INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+}
+
+
+
+const validateRequest = (userId: string, eventId: string, res: Response) => {
+
+    if (!userId || userId === undefined || userId === " " || typeof userId !== 'string' || userId === null || userId === "") {
+        throw new CustomError(
+            'Invalid Request: userId is required and must be a string',
+            400,
+            ErrorCodes.INVALID_USER_ID,
+            'validateRequest'
+        );
+    }
+
+    if (!eventId || eventId === undefined || eventId === " " || typeof eventId !== 'string' || eventId === null || eventId === "") {
+        throw new CustomError(
+            'Invalid Request: userId is required and must be a string',
+            400,
+            ErrorCodes.INVALID_EVENT_ID,
+            'validateRequest'
+        );
+    }
+
+    return {
+        userId: userId.replace(/[<>]/g, '').trim(),
+        eventId: eventId.replace(/[<>]/g, '').trim()
+    }
+}
+
+async function userJoinEvent(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
 
         const userId = req.user.userId
         const eventId = req.body.joinEventId
 
 
-        if (!userId || userId === undefined || userId === " ") {
-            res.status(400).json({ message: 'Invalid Request, userId is required' });
-            return;
-        }
+        // Validate the request data
+        const validatedRequestData = validateRequest(userId, eventId, res)
 
-        if (!eventId) {
-            res.status(400).json({ message: 'Invalid Request, eventId is required' });
-            return;
-        }
-
+        const cleanedUserId = validatedRequestData.userId
+        const cleanedEventId = validatedRequestData.eventId
 
         await prisma.userJoinEvent.create({
             data:
             {
-                user_id: userId,
-                event_id: eventId
+                user_id: cleanedUserId,
+                event_id: cleanedEventId
             }
         })
 
@@ -57,9 +88,18 @@ async function userJoinEvent(req: AuthenticatedRequest, res: Response): Promise<
 
 
     } catch (error) {
-        console.log("Server Error on userJoinEvent handler function, CatchBlock - True:", error)
-        res.status(500).json({ message: "Internal Server Error" });
 
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({
+                success: false,
+                message: error.message,
+                code: error.code,
+                functionName: "userJoinEvent",
+            
+            });
+            return
+        }
+        next(error)
     }
 
 }

@@ -11,6 +11,8 @@ interface AuthenticatedRequest extends Request {
 
 
 
+
+
 async function userGetCategoryEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
 

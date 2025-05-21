@@ -86,6 +86,7 @@ Impure Function - function - side effects or depend on external state.
 Anonaymous Function - anonymous functions (functions without names): 
     -> In handleuserInterestData.ts - line 66
 
+
 -------------------------------------------------------------------------------
 
 
@@ -116,3 +117,8 @@ File Processing Function
 
 Recursive Function
     -> processDirectory calls itself when it finds a subdirectory
+
+
+
+
+

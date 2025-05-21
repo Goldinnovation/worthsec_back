@@ -30,6 +30,8 @@ enum ErrorCodes {
 }
 
 
+
+
 // Validation function
 const validateRequest = (userId: string | undefined, selectedInterests: any): UserInterestData => {
     // Check if userId exists and is not undefined
@@ -62,6 +64,8 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
         );
     }
 
+    
+
     // Validate each interest is a string
     if (!selectedInterests.every((interest: any) => typeof interest === 'string')) {
         throw new CustomError(
@@ -73,8 +77,8 @@ const validateRequest = (userId: string | undefined, selectedInterests: any): Us
     }
 
     return {
-        userId: userId.trim(),
-        interests: selectedInterests
+        userId: userId.replace(/[<>]/g, '').trim(),
+        interests: selectedInterests.map((interest: string) => interest.replace(/[<>]/g, '').trim())
     };
 }
 
@@ -138,3 +142,4 @@ const storeInterestData = async (req: Request, res: Response, next: NextFunction
 }
 
 export default storeInterestData
+
