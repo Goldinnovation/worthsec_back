@@ -42,7 +42,7 @@ import {
  
   
   // Mock Response Data
-  const { res: mockResponse } = getMockRes({
+  const { res: mockResponse, next: mockNext } = getMockRes({
     status: vi.fn().mockReturnThis(),
     json: vi.fn(),
   });
@@ -58,7 +58,7 @@ import {
           
           });
   
-      await userJoinEvent(noEventIdReq, mockResponse)
+      await userJoinEvent(noEventIdReq, mockResponse, mockNext)
   
   
       expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -78,7 +78,7 @@ import {
           
           });
   
-        await userJoinEvent(noUserIdReq, mockResponse)
+        await userJoinEvent(noUserIdReq, mockResponse, mockNext)
     
     
         expect(mockResponse.status).toHaveBeenCalledWith(400);

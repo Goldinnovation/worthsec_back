@@ -90,7 +90,7 @@ import {
     it("should get event details ", async () => {
      
 
-      const { res: mockResponse} = getMockRes({
+      const { res: mockResponse, next: mockNext } = getMockRes({
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       });
@@ -128,7 +128,7 @@ import {
     await prisma.event.findMany.mockResolvedValue(mockedprismaReq); //mocked Prisma Client instance
 
     
-      await getEventDetails(mockedprismaReq, mockResponse)
+      await getEventDetails(mockedprismaReq, mockResponse, mockNext)
 
       expect(mockResponse.status).toHaveBeenCalledWith(200);
  

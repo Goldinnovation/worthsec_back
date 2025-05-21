@@ -48,47 +48,70 @@ const store = new (connectPgSimple(expressSession))({
 
 
    const server = express();
-//    const allowedUrl = process.env.FRONT_API_URL || "https://orbit-front-web.fly.dev" 
+   const allowedUrl = process.env.FRONT_API_URL   || "https://worthsec-front-web.fly.dev"
 
 
-    server.use(helmet());
-    server.use(validateSSL);
+    server.use(helmet({
+        xssFilter: true,  // prevent XSS attacks
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'"],
+                
+            }
+        },
+        hsts: {   // forces the browser to only use HTTPS
+            maxAge: 15552000,
+            includeSubDomains: true,
+            preload: true,
+        },
+
+        noSniff: true,  // avoid mime type sniffing
+        dnsPrefetchControl: {
+            allow: true  // Enable DNS prefetching
+        },
+        frameguard: {
+            action: 'deny'  // deny all use of embeedding frames
+        }
+ 
+    }));
+
+
+    server.use(validateSSL); 
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
     server.use(express.static('public'));
     server.use(express.json({ limit: '10kb' })); 
    
-   
+    server.use(cors({
+        origin: allowedUrl,
+        optionsSuccessStatus: 200,
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    }));
 
-    // server.use((req, res, next) => {
-    //     res.cookie('XSRF-TOKEN', req.csrfToken());
-    //     next();
-    // });
 
 
-    // server.use(cors({
-    //     origin: allowedUrl,
-    //     optionsSuccessStatus: 200,
-    //     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    // }));
+    // server.use(cors())
 
-    server.use(cors())
+    
+    
 
-    server.use(express.json())
-    // server.disable('view cache');
-
-    // server.use(
-    //     expressSession({
-    //         secret: `${process.env.SESSION_KEY}`,
-    //         store: store,
-    //         resave: false,
-    //         saveUninitialized: true,
-    //         cookie: {
-    //             maxAge: 1000 * 60 * 60 * 24,
+    server.use(
+        expressSession({
+            secret: `${process.env.SESSION_KEY}`,
+            store: store,
+            resave: false,
+            saveUninitialized: true,
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24,
                 
-    //         },
-    //     })
-    // );
+            },
+        })
+    );
+
+    // allows the X-Forwarded-For header to be trusted
+    server.set('trust proxy', 1);
+
 
     // Rate limiter for authenticated User 
     const authlimiter = rateLimit({

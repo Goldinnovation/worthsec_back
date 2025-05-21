@@ -11,7 +11,7 @@ import { vi } from "vitest";
 // import { userFavourEvent } from "@/server/controller/Event/handleFavorEvent";
 import { userFavorsEvent } from "../../../../controller/Event/handleFavorEvent";
 import { getMockReq, getMockRes } from "vitest-mock-express";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../../../../libs/__mocks__/prisma";
 
 interface AuthenticatedRequest extends Request {
@@ -46,7 +46,7 @@ describe("Post Method - Error Request on userFavorEventMobile function - should 
 
       body: {},
     });
-    const { res: mockResponse } = getMockRes({
+    const { res: mockResponse, next: mockNext } = getMockRes({
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     });
@@ -58,7 +58,7 @@ describe("Post Method - Error Request on userFavorEventMobile function - should 
       favourId: "1",
     };
 
-    await userFavorsEvent(errRequst, mockResponse);
+    await userFavorsEvent(errRequst, mockResponse, mockNext);
 
     await prisma.userFavourEvent.create.mockResolvedValue(mockedprismaResponse); //mocked Prisma Client instance
     expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -81,12 +81,12 @@ describe("Post Method - Error Request on userFavorEventMobile function - should 
       favourId: "1",
     };
 
-    const { res: mockResponse } = getMockRes({
+    const { res: mockResponse, next: mockNext } = getMockRes({
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     });
 
-    await userFavorsEvent(errRequst, mockResponse);
+    await userFavorsEvent(errRequst, mockResponse, mockNext);
 
     await prisma.userFavourEvent.create.mockResolvedValue(mockedprismaResponse);
     expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -104,12 +104,12 @@ describe("Post Method - Error Request on userFavorEventMobile function - should 
       },
     });
 
-    const { res: mockResponse } = getMockRes({
+    const { res: mockResponse, next: mockNext } = getMockRes({
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     });
 
-    await userFavorsEvent(errRequst, mockResponse);
+    await userFavorsEvent(errRequst, mockResponse, mockNext);
 
     expect(mockResponse.status).toHaveBeenCalledWith(500);
     expect(mockResponse.json).toHaveBeenCalledWith({

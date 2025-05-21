@@ -152,6 +152,7 @@ const createNewAccount = async (userData: {userName: string; userEmail: string; 
 const handleSignUp = async (req: Request<{}, {}, userSignUpData>, res: Response, next: NextFunction) => {
     try {
 
+   
         const validation = validateSignUpInput(req, res, next);
 
         const cleanedUserName = validation.userName;
@@ -179,7 +180,7 @@ const handleSignUp = async (req: Request<{}, {}, userSignUpData>, res: Response,
                 success: false,
                 message: error.message,
                 code: error.code,
-                functionName: error.functionName,
+                functionName: "SignUp" ,
 
             });
             return

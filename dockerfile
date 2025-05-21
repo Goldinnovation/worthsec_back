@@ -35,7 +35,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 
 
-ENV FRONT_API_URL="https://orbit-front-web.fly.dev"
+ENV FRONT_API_URL="https://worthsec-front-web.fly.dev"
 
 # Copy the .env file into the image
 

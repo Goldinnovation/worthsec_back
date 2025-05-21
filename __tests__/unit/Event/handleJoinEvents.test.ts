@@ -52,14 +52,14 @@ describe("POST Method - Handles client requests to store an event and user ID in
     });
 
     // Mock Response Data
-    const { res: mockResponse } = getMockRes({
+    const { res: mockResponse, next: mockNext } = getMockRes({
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     });
 
     await prisma.userJoinEvent.create.mockResolvedValue(mockedprismaResponse); //mocked Prisma Client instance
 
-    await userJoinEvent(mockRequest, mockResponse);
+    await userJoinEvent(mockRequest, mockResponse, mockNext);
 
     expect(mockResponse.status).toHaveBeenCalledWith(200);
     expect(mockResponse.json).toHaveBeenCalledWith({

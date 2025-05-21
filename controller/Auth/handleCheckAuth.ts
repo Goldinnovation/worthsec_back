@@ -1,5 +1,5 @@
-import { Response, Request, NextFunction } from "express"
-import CustomError from "../../errors/customError";
+import { Response, Request, NextFunction } from 'express'
+import CustomError from '../../errors/customError';
 
 
 interface AuthenticatedRequest extends Request{

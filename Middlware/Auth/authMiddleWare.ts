@@ -16,35 +16,31 @@ const authMiddlewareCheck = (
   next: NextFunction
 ) => {
 
-  // const reqOrigin = req.get('Origin');
-  // const domain = process.env.FRONT_API_URL
+  const reqOrigin = req.get('Origin');
+  const domain = process.env.FRONT_API_URL
   const token = req.headers["authorization"]?.split(" ")[1];
   const tokenKey = process.env.JWT_SECRET_KEY as string;
 
-  // console.log('token', token);
-  // console.log('reqOrigin', reqOrigin);
-  // console.log('domain', domain);
   try {
-    // if (req.user) {
-    //   next();
-    // } else 
+    
 
-    // if(domain !== reqOrigin){
-    //   return res.status(401).json({message: "Invalid Request"})
-    // }
-   
-
+    if(domain !== reqOrigin){
+      res.status(401).json({message: "Invalid Request"})
+      return
+    }
     if (token) {
       jwt.verify(token, tokenKey, (err, decoded) => {
         if (err) {
-          return res.status(401).json({ message: "Invalid token " });
+           res.status(401).json({ message: "Invalid token " });
+           return
         } else {
           req.user = decoded;
           next();
         }
       });
     } else {
-      return res.redirect("/");
+      res.redirect("/");
+      return
     }
   } catch (error) {
     console.log("Error on Authentication middleware", error);
