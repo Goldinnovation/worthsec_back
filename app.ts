@@ -53,13 +53,6 @@ const store = new (connectPgSimple(expressSession))({
 
     server.use(helmet({
         xssFilter: true,  // prevent XSS attacks
-        contentSecurityPolicy: {
-            directives: {
-                defaultSrc: ["'self'"],
-                scriptSrc: ["'self'"],
-                
-            }
-        },
         hsts: {   // forces the browser to only use HTTPS
             maxAge: 15552000,
             includeSubDomains: true,
@@ -72,6 +65,9 @@ const store = new (connectPgSimple(expressSession))({
         },
         frameguard: {
             action: 'deny'  // deny all use of embeedding frames
+        },
+        permittedCrossDomainPolicies: {
+            permittedPolicies: 'none' // Flash-based or PDF-based attacks where a malicious plugin might try to steal data from your backend.
         }
  
     }));
