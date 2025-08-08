@@ -28,6 +28,7 @@ const DecodeANDVerifyToken = (
       const decoded = jwt.verify(usertoken, SECRET_KEY) as DJwtPayload;
     
       
+      console.log('usertoken', usertoken);
       (req as AuthenticatedRequest).decodedUserId = decoded.userId;
       
   

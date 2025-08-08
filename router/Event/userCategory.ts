@@ -6,7 +6,7 @@ import authMiddlewareCheck from '../../Middlware/Auth/authMiddleWare';
 
 
 
-router.post('/', authMiddlewareCheck, userGetCategoryEvent )
+router.post('/', DecodeANDVerifyToken, userGetCategoryEvent)
 
 
 export default router

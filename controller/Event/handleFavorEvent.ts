@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from "jsonwebtoken";
 import createErrorWithContext from '../../utils/errorWithContext';
 import CustomError from '../../errors/customError';
+import { AugmentedRequest } from 'express-rate-limit';
 
 /**
  * Purpose Statement--userFavourEvent
@@ -26,8 +27,9 @@ import CustomError from '../../errors/customError';
 
 
 interface AuthenticatedRequest extends Request {
-    user?: any
-    decodedUserId: string
+    user?: any; 
+    // decodedUserId: string;
+  
 
 }
 
@@ -83,6 +85,7 @@ const validateRequest = (userId: string | undefined, favoredEventId: any): Userf
 
 // Validate User ID
 const validateUserId = (userId: string | undefined, res: Response) => {
+    console.log('userId on validUserId', userId);
     if (userId === undefined || userId === " " || userId === null || userId === "" || typeof userId !== 'string') {
         res.status(400).json({ message: 'Invalid Request, userId does not exist' });
         return
@@ -127,10 +130,11 @@ const uploadFavorEvent = async (userId: string, eventId: string) => {
 
 // ------------------------------------------------------------
 
-// Handle Favor Event main function
-export async function userFavorsEvent(req: Request, res: Response, next: NextFunction): Promise<void> {
+// Handle Favor Event main function - POST Method 
+export async function userFavorsEvent(req: AuthenticatedRequest , res: Response, next: NextFunction): Promise<void> {
     try {
-        const userId = (req as AuthenticatedRequest)?.decodedUserId;
+        // const userId = (req as AuthenticatedRequest)?.decodedUserId ;
+        const userId = req.user.userId
         const eventId = req.body?.favoreventId;
 
         // Validate Request
@@ -157,7 +161,7 @@ export async function userFavorsEvent(req: Request, res: Response, next: NextFun
            });
            return
        }
-       next(error);
+    //    next(error);
 
     }
 
@@ -169,8 +173,8 @@ export async function userFavorsEvent(req: Request, res: Response, next: NextFun
 
 
 
-// Get Event Details - main function
-export const getEventDetails = async (getFavoredEventId: any, res: Response, next: NextFunction) => {
+//  Event Details - main function - GET Method
+export const getEventDetails = async (getFavoredEventId: any, res: Response) => {
 
     try {
        
@@ -191,7 +195,7 @@ export const getEventDetails = async (getFavoredEventId: any, res: Response, nex
 
         await Promise.all(promiseEventData)
 
-
+        // console.log('favoredEventsArr',favoredEventsArr);
         res.status(200).json(favoredEventsArr)
 
     } catch (error) {
@@ -204,7 +208,7 @@ export const getEventDetails = async (getFavoredEventId: any, res: Response, nex
            });
            return
        }
-       next(error);
+    //    next(error);
 
     }
 
@@ -214,10 +218,12 @@ export const getEventDetails = async (getFavoredEventId: any, res: Response, nex
 
 
 // Get User Favored Events - main function
-export async function getUserFavoredEvents(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getUserFavoredEvents(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-        const userId = (req as AuthenticatedRequest)?.decodedUserId;
+        // const userId = (req as AuthenticatedRequest)?.decodedUserId;
+        const userId = req.user.userId
 
+        console.log('userId on Auth', userId);
        const validatedUserId = validateUserId(userId, res)
 
        const cleanedUserId = validatedUserId?.userId
@@ -230,7 +236,8 @@ export async function getUserFavoredEvents(req: Request, res: Response, next: Ne
             },
         })
 
-        getEventDetails(favoredEvent, res, next)
+        console.log('favoredEvent', favoredEvent);
+        getEventDetails(favoredEvent, res)
 
     } catch (error) {
         if (error instanceof CustomError) {
@@ -242,7 +249,8 @@ export async function getUserFavoredEvents(req: Request, res: Response, next: Ne
            });
            return
        }
-       next(error);
+    //    next(error);
+    //    return; 
        
 
     }

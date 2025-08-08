@@ -24,21 +24,26 @@ const authMiddlewareCheck = (
   try {
     
 
-    if(domain !== reqOrigin){
-      res.status(401).json({message: "Invalid Request"})
-      return
-    }
+      console.log('triggert in token', token);
+    // if(domain !== reqOrigin){
+    //   res.status(401).json({message: "Invalid Request"})
+    //   return
+    // }
     if (token) {
+      console.log('passed it token', token);
       jwt.verify(token, tokenKey, (err, decoded) => {
         if (err) {
            res.status(401).json({ message: "Invalid token " });
            return
         } else {
           req.user = decoded;
+          
+          console.log(' req.user',  req.user);
           next();
         }
       });
     } else {
+
       res.redirect("/");
       return
     }

@@ -48,42 +48,43 @@ const store = new (connectPgSimple(expressSession))({
 
 
    const server = express();
-   const allowedUrl = process.env.FRONT_API_URL   || "https://worthsec-front-web.fly.dev"
+//    const allowedUrl = process.env.FRONT_API_URL   || "https://worthsec-front-web.fly.dev"
 
 
-    server.use(helmet({
-        xssFilter: true,  // prevent XSS attacks
-        hsts: {   // forces the browser to only use HTTPS
-            maxAge: 15552000,
-            includeSubDomains: true,
-            preload: true,
-        },
+    // server.use(helmet({
+    //     xssFilter: true,  // prevent XSS attacks
+    //     hsts: {   // forces the browser to only use HTTPS
+    //         maxAge: 15552000,
+    //         includeSubDomains: true,
+    //         preload: true,
+    //     },
 
-        noSniff: true,  // avoid mime type sniffing
-        dnsPrefetchControl: {
-            allow: true  // Enable DNS prefetching
-        },
-        frameguard: {
-            action: 'deny'  // deny all use of embeedding frames
-        },
-        permittedCrossDomainPolicies: {
-            permittedPolicies: 'none' // Flash-based or PDF-based attacks where a malicious plugin might try to steal data from your backend.
-        }
+    //     noSniff: true,  // avoid mime type sniffing
+    //     dnsPrefetchControl: {
+    //         allow: true  // Enable DNS prefetching
+    //     },
+    //     frameguard: {
+    //         action: 'deny'  // deny all use of embeedding frames
+    //     },
+    //     permittedCrossDomainPolicies: {
+    //         permittedPolicies: 'none' // Flash-based or PDF-based attacks where a malicious plugin might try to steal data from your backend.
+    //     }
  
-    }));
+    // }));
 
 
-    server.use(validateSSL); 
+    // server.use(validateSSL); 
     server.use(bodyParser.json());
     server.use(bodyParser.urlencoded({ extended: true }));
     server.use(express.static('public'));
     server.use(express.json({ limit: '10kb' })); 
    
-    server.use(cors({
-        origin: allowedUrl,
-        optionsSuccessStatus: 200,
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    }));
+    // server.use(cors({
+    //     origin: allowedUrl,
+    //     optionsSuccessStatus: 200,
+    //     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    // }));
+    
 
 
 
@@ -106,25 +107,25 @@ const store = new (connectPgSimple(expressSession))({
     );
 
     // allows the X-Forwarded-For header to be trusted
-    server.set('trust proxy', 1);
+    // server.set('trust proxy', 1);
 
 
     // Rate limiter for authenticated User 
-    const authlimiter = rateLimit({
-        windowMs: 15 * 60 * 1000, 
-        limit: 100,
-        standardHeaders: 'draft-8',
-        legacyHeaders: false
+    // const authlimiter = rateLimit({
+    //     windowMs: 15 * 60 * 1000, 
+    //     limit: 100,
+    //     standardHeaders: 'draft-8',
+    //     legacyHeaders: false
 
-    })
+    // })
     // Rate limiter for Unauthenticated User
-    const unAuthlimiter = rateLimit({
-        windowMs: 15 * 60 * 1000, 
-        limit: 10,
-        standardHeaders: 'draft-8',
-        legacyHeaders: false
+    // const unAuthlimiter = rateLimit({
+    //     windowMs: 15 * 60 * 1000, 
+    //     limit: 10,
+    //     standardHeaders: 'draft-8',
+    //     legacyHeaders: false
 
-    })
+    // })
     server.use(passport.initialize());
     server.use(passport.session());
 
@@ -133,30 +134,35 @@ const store = new (connectPgSimple(expressSession))({
    
 
     // API endpoints
-    server.use('/api/events', authlimiter, eventRequest);
-    server.use('/api/signUpAcc',unAuthlimiter, signupRequest);
+    
+    server.use('/api/events', eventRequest);
+    server.use('/api/signUpAcc', signupRequest);
     // server.use('/api/login', unAuthlimiter, loginReq);
-    server.use('/api/login-token',unAuthlimiter,LoginToken)
-    server.use('/api/logout', unAuthlimiter,logoutReq);
-    server.use('/api/user', authlimiter, userProfilePicture);
-    server.use('/user/c', authlimiter, userAuthCheck);
-    server.use('/api/search', authlimiter, searchUserReq);
-    server.use('/api/userTouser', authlimiter,  userFollowUser);
-    server.use('/api/explore', authlimiter, exploreEvents);
-    server.use('/api/JoinEvent', authlimiter, userJoinEvent);
-    server.use('/api/DisplayJoinedEvent', authlimiter, displayUserJoinEvent);
-    server.use('/api/searchforclosefriends', authlimiter, searchForCloseFriend);
-    server.use('/api/invite', authlimiter, inviteCloseFriends);
-    server.use('/api/notifications', authlimiter, userNotifications);
-    server.use('/api/userInterest', authlimiter,  userInterestDatarouter)
-    server.use('/api/eventCategory', authlimiter, userCategoryEventReq)
-    server.use('/api/favorEventMobile',authlimiter, userFavorEventReqMob)
-    server.use('/api/newExploreEventData',authlimiter, newExploreEventData)
-    server.use('/api/uploadUserBackground',authlimiter, uploadUserBackground)
-    server.use('/api/userData', authlimiter, UserDataMobile)
-    server.use('/api/userQRRequest',authlimiter, userQRRequest)
-    server.use('/api/userProfilePictureMobileUpload', authlimiter, uploadMobileUserProfilePicture);
-    server.use('/api/uploadGifBgMobile', authlimiter, uploadUserGifBgMobile);
+    server.use('/api/login-token',LoginToken)
+    server.use('/api/logout',logoutReq);
+    server.use('/api/user', userProfilePicture);
+    server.use('/user/c', userAuthCheck);
+    server.use('/api/search', searchUserReq);
+    server.use('/api/userTouser',  userFollowUser);
+    server.use('/api/explore', exploreEvents);
+    server.use('/api/JoinEvent', userJoinEvent);
+    server.use('/api/DisplayJoinedEvent', displayUserJoinEvent);
+    server.use('/api/searchforclosefriends', searchForCloseFriend);
+    server.use('/api/invite', inviteCloseFriends);
+    server.use('/api/notifications', userNotifications);
+    server.use('/api/userInterest',  userInterestDatarouter)
+    server.use('/api/eventCategory', userCategoryEventReq)
+    server.use('/api/favorEventMobile', userFavorEventReqMob)
+    server.use('/api/newExploreEventData', newExploreEventData)
+    server.use('/api/uploadUserBackground', uploadUserBackground)
+    server.use('/api/userData', UserDataMobile)
+    server.use('/api/userQRRequest', userQRRequest)
+    server.use('/api/userProfilePictureMobileUpload', uploadMobileUserProfilePicture);
+    server.use('/api/uploadGifBgMobile', uploadUserGifBgMobile);
+
+
+  
+    
 
     server.use((req, res, next) => {
         const error = new Error('Not Found');

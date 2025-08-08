@@ -20,6 +20,8 @@ async function userGetCategoryEvent(req: Request, res: Response, next: NextFunct
     const selectedCategory = req.body.cateogory
 
 
+    console.log('userId on categorsy', userId);
+    console.log('selectedCategory', selectedCategory);
     if (userId === undefined) {
       res.status(400).json({ message: 'Invalid Request, userId does not exist' });
       return
@@ -37,6 +39,8 @@ async function userGetCategoryEvent(req: Request, res: Response, next: NextFunct
         eventType: selectedCategory
       }
     })
+
+    console.log('UserselectedData', UserselectedData);
 
     res.status(200).json(UserselectedData)
 

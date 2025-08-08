@@ -21,6 +21,8 @@ export async function exploreEvents(req: AuthenticatedRequest, res: Response): P
       const currentUserId = req.user.userId;
       // const userCity = req.body.city
 
+      // console.log('currentUserId', currentUserId);
+
       if (!currentUserId) {res.status(400).json({
             message: "Invalid Request from Client, user ID does not exist",
           });
@@ -197,6 +199,7 @@ export const getSpecifiedEventData = async (data: string[] | undefined, req: Aut
             take: 24
         });
 
+        // console.log('interestedEvents', interestedEvents);
         res.status(200).json(interestedEvents)
 
     } catch (error) {

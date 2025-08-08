@@ -241,6 +241,7 @@ const findEvents = async (req: AuthenticatedRequest, res: Response) => {
             res.status(400).json({ message: "Bad Request: userId is required" });
         }
 
+        console.log('');
 
         const userEvents = await prisma.event.findMany({
             where: {
@@ -248,6 +249,8 @@ const findEvents = async (req: AuthenticatedRequest, res: Response) => {
             },
 
         });
+
+        console.log('userEvents',userEvents);
 
         res.json(userEvents);
 
